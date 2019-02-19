@@ -1,5 +1,5 @@
 <template>
-    <div class="index">
+    <div class="el-data-table">
         <el-data-table ref="elDataTable" v-bind="tableConfig"></el-data-table>
     </div>
 </template>
@@ -12,6 +12,17 @@
           url: "/component",
           dataPath: "list",
           totalPath: "total_count",
+          formAttrs: { labelWidth: "80px" },
+          hasEdit: false,
+          tableAttrs: {
+            "cell-style": ({ row, column }) => {
+              if (column.property === "state") {
+                if (row.state === "1") {
+                  return "color:#00CD00";
+                }
+              }
+            }
+          },
           //列表数据对应
           columns: [
             {
@@ -44,7 +55,6 @@
             {
               prop: "state",
               label: "状态",
-              "class-name": "state-enable",
               formatter: row => (row.state === "1" ? "上架" : "下架")
             }
           ],
@@ -168,8 +178,6 @@
               $el: { placeholder: "请输入开发语言" }
             }
           ],
-          //表单样式
-          formAttrs: { labelWidth: "80px" },
           extraButtons: [
             {
               type: "primary",
@@ -198,11 +206,12 @@
                       let data = row;
                       data.state = "1";
                       this.$axios.put(this.tableConfig.url + "/" + row.id, data)
-                        .then(resp => {
+                        .then(() => {
                           instance.confirmButtonLoading = false;
                           done();
                           this.$refs.elDataTable.showMessage(true);
                           this.$refs.elDataTable.cancel();
+                          this.$refs.elDataTable.getList();
                         })
                         .catch(err => {
                           instance.confirmButtonLoading = false;
@@ -212,7 +221,7 @@
                 }).catch(er => {
                   /*取消*/
                 });
-                return Promise.resolve();
+                return Promise.resolve(false);
               }
             },
             {
@@ -229,11 +238,12 @@
                       let data = row;
                       data.state = "0";
                       this.$axios.put(this.tableConfig.url + "/" + row.id, data)
-                        .then(resp => {
+                        .then(() => {
                           instance.confirmButtonLoading = false;
                           done();
                           this.$refs.elDataTable.showMessage(true);
                           this.$refs.elDataTable.cancel();
+                          this.$refs.elDataTable.getList();
                         })
                         .catch(err => {
                           instance.confirmButtonLoading = false;
@@ -243,51 +253,14 @@
                 }).catch(er => {
                   /*取消*/
                 });
-                return Promise.resolve();
+                return Promise.resolve(false);
               }
             }
 
-          ],
-          hasEdit: false,
-          tableAttrs: {
-            "cell-style": ({ row, column }) => {
-              if (column.property === "state") {
-                if (row.state === "1") {
-                  return "color:#00CD00";
-                }
-              }
-            }
-          }
-        },
-        form: [
-          {
-            rules: [{ required: true, trigger: "blur" }],
-            $el: {
-              placeholder: "请输入品牌名称"
-            },
-            label: "品牌名称",
-            $id: "name",
-            $type: "input"
-          },
-          {
-            rules: [
-              { message: "请输入品牌别名", required: false, trigger: "blur" }
-            ],
-            $el: { placeholder: "请输入品牌别名" },
-            label: "品牌别名",
-            $id: "alias",
-            $type: "input"
-          }
-        ]
+          ]
+        }
       };
     },
     methods: {}
   };
 </script>
-<style lang="stylus">
-    .index {
-        .home-img {
-            width: 100%;
-        }
-    }
-</style>
